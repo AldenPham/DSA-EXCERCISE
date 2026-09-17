@@ -1,0 +1,235 @@
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <vector>
+
+using namespace std;
+
+struct node{
+    public:
+    node* next;
+    node* prev;
+    int val;
+
+    node(int val){
+        next = nullptr;
+        prev = nullptr;
+        this->val = val;
+    }
+};
+
+class doubly_Linked_List{
+    private:
+        node* head = nullptr;
+        node* tail = nullptr;
+        int size = 0;
+    public:
+        void push_Back(int value){
+            node* curr = new node(value);
+            if(head == nullptr){
+                head = curr;
+                tail = curr;
+                size++;
+            }
+            else{
+                tail->next = curr;
+                curr->prev = tail;
+                tail = curr;
+                size++;
+            }
+        }
+
+        void push_Front(int value){
+            node* curr = new node(value);
+            if(head == nullptr){
+                head = curr;
+                tail = curr;
+                size++;
+            }
+            else{
+                head->prev = curr;
+                curr->next = head;
+                head = curr;
+                size++;
+            }
+        }
+
+        void pop_Back(){
+            if(head == nullptr){
+                return;
+            }
+            else if(head == tail){
+                delete head;
+                head = nullptr;
+                tail = nullptr;
+                size--;
+            }
+            else{
+                node* old_Tail = tail;
+                tail = tail->prev;
+                tail->next = nullptr;
+                delete old_Tail;
+                size--;
+            }
+
+        }
+
+        void pop_Front(){
+            if(head == nullptr){
+                return;
+            }
+            else if(head == tail){
+                delete head;
+                head = nullptr;
+                tail = nullptr;
+                size--;
+            }
+            else{
+                node* old_Head = head;
+                head = head->next;
+                head->prev = nullptr;
+                delete old_Head;
+                size--;
+            }
+        }
+
+        node* search_Val(int value){
+            node* curr = head;
+            if(curr == nullptr){
+                return nullptr;
+            }
+            while(curr->val != value){
+                if(curr->next == nullptr){
+                    return nullptr;
+                }
+                
+                curr = curr->next;
+            }
+            return curr;
+        }
+
+        void delete_Val(int value){
+            //Find node
+            node* curr = search_Val(value);
+            if(curr == nullptr){
+                return;
+            }
+
+            if(curr == head){
+                pop_Front();
+            }
+            else if(curr == tail){
+                pop_Back();
+            }
+            else{
+                curr->prev->next = curr->next;
+                curr->next->prev = curr->prev;
+                delete curr;
+                size--;
+            }
+        }
+
+        void delete_Node(node* targetNode){
+            if(targetNode == nullptr){
+                return;
+            }
+            else if(targetNode == head){
+                pop_Front();
+            }
+            else if(targetNode == tail){
+                pop_Back();
+            }
+            else{
+                targetNode->prev->next = targetNode->next;
+                targetNode->next->prev = targetNode->prev;
+                delete targetNode;
+                size--;
+            }
+        }
+
+        int get_Size(){
+            return size;
+        }
+
+        node* get_Head(){
+            return head;
+        }
+
+        node* get_Tail(){
+            return tail;
+        }
+};
+
+void access(int x, int C, doubly_Linked_List &a){
+    node* curr = a.search_Val(x);
+    if(a.get_Size() < C){
+        if(curr == nullptr){
+            a.push_Front(x);
+        }
+        else{
+            a.delete_Node(curr);
+            a.push_Front(x);
+        }
+    }
+    else{
+        if(curr == nullptr){
+            a.delete_Node(a.get_Tail());
+            a.push_Front(x);
+        }
+        else{
+            a.delete_Node(curr);
+            a.push_Front(x);
+        }
+    }
+}   
+
+void close(int x, doubly_Linked_List &a){
+    node* curr = a.search_Val(x);
+    if(curr == nullptr){
+        return;
+    }
+
+    a.delete_Node(curr);
+}
+
+void run_Command(string command, doubly_Linked_List& a, int C){
+    string action;
+    int val;
+
+    stringstream ss(command);
+    // action ""
+    ss >> action >> val;
+
+    if(action == "ACCESS"){
+        access(val, C, a); 
+    }
+    else if(action == "CLOSE"){
+        close(val, a);
+    }
+    
+}
+
+int main(){
+    int C, Q;
+    cin >> C >> Q;
+    doubly_Linked_List a;
+    vector<string> cmd(Q);
+    
+    cin.ignore();
+    for(int i = 0; i < Q; i++){
+        getline(cin, cmd[i]);
+    }
+
+    for(int i = 0; i < Q; i++){
+        run_Command(cmd[i], a, C);
+    }
+
+    cout << a.get_Size() << "\n";
+    if(a.get_Size() != 0){
+        node* curr = a.get_Head();
+        while(curr != nullptr){
+            cout << curr->val << " ";
+            curr = curr->next;
+        }
+    }   
+}
