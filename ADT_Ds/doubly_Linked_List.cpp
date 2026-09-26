@@ -140,6 +140,38 @@ class doubly_Linked_List{
             }
         }
 
+        void swap_Front(node* target) {
+            node* prev = target->prev;
+            if(prev == nullptr){
+                return;
+            }
+
+            node* before = prev->prev;
+            node* after = target->next;
+
+            // connect node before prev -> target
+            if(before){
+                before->next = target;
+            }
+            else{
+                head = target;
+            }
+                
+
+            // target
+            target->prev = before;
+            target->next = prev;
+
+            // prev
+            prev->prev = target;
+            prev->next = after;
+
+            // node after target
+            if (after)
+                after->prev = prev;
+            else
+                tail = prev;
+        }
         int get_Size(){
             return size;
         }
